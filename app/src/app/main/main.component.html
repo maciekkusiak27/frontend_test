@@ -1,0 +1,46 @@
+<main class="main">
+    <div class="main__header">
+      <h1>Nagłówek h1</h1>
+      <hr />
+    </div>
+  
+    <div class="main__content">
+      <div class="main__block main__block--first">
+        <h2 class="main__block-title">BLOK PIERWSZY</h2>
+        <div>
+          <input type="radio" id="option1" name="options" value="option1" (change)="onSelectOption('option1')" />
+          <label for="option1">Opcja pierwsza</label>
+        </div>
+        <div>
+          <input type="radio" id="option2" name="options" value="option2" (change)="onSelectOption('option2')" />
+          <label for="option2">Opcja druga</label>
+        </div>
+        <div>
+          <input type="radio" id="random" name="options" value="random" (change)="onSelectOption('random')" />
+          <label for="random">Opcja losowa</label>
+        </div>
+      </div>
+  
+      <div class="main__block main__block--second">
+        <h2 class="main__block-title">BLOK DRUGI</h2>
+        <div>
+          <div class="main__content-button" (click)="onAction('REPLACE')" (keydown.enter)="onAction('REPLACE')">ZASTĄP</div>
+          <div class="main__content-button" (click)="onAction('APPEND')" (keydown.enter)="onAction('APPEND')">DOKLEJ</div>
+        </div>
+      </div>
+  
+      <div class="main__block main__block--third">
+        <div class="main__json-content" *ngIf="currentElement">
+          <div *ngFor="let element of displayedElements">
+            <h2 class="main__json-title">{{ element.title }}</h2>
+            <p class="main__json-description">{{ element.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div *ngIf="showAlert" class="alert" role="alert">
+      {{ alertMessage }}
+    </div>
+  </main>
+  

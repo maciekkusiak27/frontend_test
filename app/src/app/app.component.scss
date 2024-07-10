@@ -1,0 +1,10 @@
+.app-wrapper{
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; 
+    background-color: #2B2D35;
+    justify-content: space-between;
+    .main{
+        flex-grow: 2;
+    }
+}
