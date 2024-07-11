@@ -1,0 +1,18 @@
+<div class="dialog">
+    <h2 mat-dialog-title>{{ data?.element ? 'Edytuj element' : 'Nowy wpis' }}</h2>
+    <mat-dialog-content>
+      <form [formGroup]="form">
+        <mat-form-field>
+          <input matInput formControlName="title" placeholder="Tytuł">
+        </mat-form-field>
+        <mat-form-field>
+          <textarea matInput formControlName="description" placeholder="Opis"></textarea>
+        </mat-form-field>
+      </form>
+    </mat-dialog-content>
+    <mat-dialog-actions>
+      <button mat-button mat-dialog-close>Anuluj</button>
+      <button mat-button [mat-dialog-close]="form.value">Zatwierdź</button>
+    </mat-dialog-actions>
+  </div>
+  

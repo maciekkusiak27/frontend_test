@@ -14,6 +14,20 @@
     font-size: 1rem;
   }
 
+  .main__content-button {
+    padding: 0.1rem 1rem;
+    margin: 0.2rem 0;
+    border: 0.1rem solid white;
+    font-size: 0.9rem;
+    width: fit-content;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .main__content-button:hover {
+    background-image: linear-gradient(to right, rgb(54, 29, 0), orange);
+    color: white;
+  }
+
   .main__block-title {
     margin-bottom: 1rem;
   }
@@ -105,19 +119,7 @@
           }
         }
 
-        .main__content-button {
-          padding: 0.1rem 1rem;
-          margin: 0.2rem 0;
-          border: 0.1rem solid white;
-          font-size: 0.9rem;
-          width: fit-content;
-          font-weight: bold;
-          cursor: pointer;
-        }
-        .main__content-button:hover {
-          background-image: linear-gradient(to right, rgb(54, 29, 0), orange);
-          color: white;
-        }
+        
       }
 
       &--third {

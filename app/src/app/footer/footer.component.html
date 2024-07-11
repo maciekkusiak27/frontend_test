@@ -1,15 +1,15 @@
 <footer class="footer">
-    <div class="footer__block">
-      <span class="footer__item">CSS</span>
-      <span class="footer__item">IS</span>
-      <span class="footer__item">AWESOME</span>
+  <div class="footer__block">
+    <span class="footer__item">CSS</span>
+    <span class="footer__item">IS</span>
+    <span class="footer__item">AWESOME</span>
+  </div>
+  <input type="checkbox" id="showOptions" class="footer__checkbox">
+  <label for="showOptions" class="footer__button">Pokaż</label>
+  <div class="footer__options">
+    <div class="footer__options--wrapper">
+      <div class="button" (click)="onResetPage()">Zresetuj ustawienia</div>
+      <div class="button" (click)="this.addName.emit();">Pokaż dane osobowe</div>
     </div>
-    <div class="footer__button" (click)="optionsVisible = !optionsVisible">Pokaż</div>
-    <div class="footer__options" [ngClass]="{'footer__options--visible': optionsVisible}">
-      <div class="footer__options--wrapper">
-        <div class="button" (click)="onResetPage()">Zresetuj ustawienia</div>
-        <div class="button" (click)="onAddName()">Pokaż dane osobowe</div>
-      </div>
-    </div>
-  </footer>
-  
+  </div>
+</footer>

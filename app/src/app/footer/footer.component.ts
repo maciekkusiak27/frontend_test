@@ -12,18 +12,10 @@ import { DataService } from '../../services/data.service';
 export class FooterComponent {
   @Output() addName = new EventEmitter<void>();
 
-  optionsVisible: boolean = false;
-
   constructor(private _dataService: DataService) {}
 
   public onResetPage(): void {
     this._dataService.setResetData(true);
-    this.optionsVisible = false;
-  }
-
-  public onAddName(): void {
-    this.addName.emit();
-    this.optionsVisible = false;
   }
  
 }

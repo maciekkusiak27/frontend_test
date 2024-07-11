@@ -1,8 +1,16 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  Component,
+  Inject,
+  OnDestroy,
+  OnInit,
+  PLATFORM_ID,
+} from '@angular/core';
 import { DataService } from '../../services/data.service';
 import { DataJson, Element } from '../../data/data.interface';
 import { Subscription } from 'rxjs';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
+import { CreateModalComponent } from './create-modal/create-modal.component';
 
 @Component({
   selector: 'app-main',
@@ -12,34 +20,41 @@ import { CommonModule } from '@angular/common';
   styleUrl: './main.component.scss',
 })
 export class MainComponent implements OnInit, OnDestroy {
-  data!: DataJson;
+  data: DataJson = { elements: [] };
   currentElementIndex = 0;
   currentElement: Element | undefined;
   selectedOption = '';
   usedIndexes: number[] = [];
   displayedElements: Element[] = [];
-
-  private resetDataSubscription!: Subscription;
-
   showAlert = false;
   alertMessage = '';
 
-  constructor(private dataService: DataService) {}
+  private resetDataSubscription!: Subscription;
 
-  ngOnInit(): void {
-    this.dataService.getData().subscribe((response) => {
-      this.data = response;
-      if (this.data && this.data.elements.length > 0) {
-        this.currentElement = this.data.elements[this.currentElementIndex];
-        this.displayedElements = [this.currentElement];
-      }
-    });
+  constructor(
+    private dataService: DataService,
+    private dialog: MatDialog,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
 
-    this.resetDataSubscription = this.dataService.resetData$.subscribe((value) => {
-      if (value) {
-        this._resetToInitialState();
+  public ngOnInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.dataService.getData().subscribe((response) => {
+        this.data = response;
+        if (this.data && this.data.elements.length > 0) {
+          this.currentElement = this.data.elements[this.currentElementIndex];
+          this.displayedElements = [this.currentElement];
+        }
+      });
+    }
+
+    this.resetDataSubscription = this.dataService.resetData$.subscribe(
+      (value) => {
+        if (value) {
+          this._resetToInitialState();
+        }
       }
-    });
+    );
   }
 
   private _resetToInitialState(): void {
@@ -54,7 +69,55 @@ export class MainComponent implements OnInit, OnDestroy {
     }
   }
 
-  onAction(action: string): void {
+  public onEdit(element: Element): void {
+    const dialogRef = this.dialog.open(CreateModalComponent, {
+      data: { element },
+    });
+
+    dialogRef.afterClosed().subscribe((result: Element | undefined) => {
+      if (result) {
+        const index = this.data.elements.findIndex((el) => el.id === result.id);
+        if (index !== -1) {
+          this.data.elements[index] = result;
+
+          if (this.currentElement && this.currentElement.id === result.id) {
+            this.currentElement = result;
+            this.displayedElements = [this.currentElement];
+          }
+
+          this._saveDataToLocalStorage();
+        }
+      }
+    });
+  }
+
+  public onDelete(id: string | undefined): void {
+    this.data.elements = this.data.elements.filter((elem) => elem.id !== id);
+    this.displayedElements = this.displayedElements.filter(
+      (elem) => elem.id !== id
+    );
+    this._saveDataToLocalStorage();
+  }
+
+  public onCreate(): void {
+    this.dialog
+      .open(CreateModalComponent)
+      .afterClosed()
+      .subscribe((result) => {
+        if (result) {
+          this.data.elements.push(result);
+          this._saveDataToLocalStorage();
+        }
+      });
+  }
+
+  private _saveDataToLocalStorage(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.dataService.setData(this.data);
+    }
+  }
+
+  public onAction(action: string): void {
     switch (action) {
       case 'REPLACE':
         this._replaceContent();
@@ -96,40 +159,50 @@ export class MainComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (this.usedIndexes.length >= this.data.elements.length) {
-      this.displayAlert('Wszystkie dostępne treści zostały już użyte.');
+    switch (this.selectedOption) {
+      case 'option1':
+        this._addSpecificElement(0);
+        break;
+      case 'option2':
+        this._addSpecificElement(1);
+        break;
+      case 'random':
+        this._addRandomElement();
+        break;
+      default:
+        break;
+    }
+  }
+
+  private _addSpecificElement(indexToAdd: number): void {
+    if (this.usedIndexes.includes(indexToAdd)) {
+      this._displayAlert('Wybrana treść została już dodana.');
       return;
     }
 
-    let indexToAdd: number;
-    switch (this.selectedOption) {
-      case 'option1':
-        indexToAdd = 0;
-        break;
-      case 'option2':
-        indexToAdd = 1;
-        break;
-      case 'random':
-        indexToAdd = this._getRandomIndex();
-        break;
-      default:
-        return;
+    const additionalElement = this.data.elements[indexToAdd];
+    this.displayedElements.push(additionalElement);
+    this.usedIndexes.push(indexToAdd);
+    this.displayedElements.sort((a, b) => a.title.localeCompare(b.title));
+  }
+
+  private _addRandomElement(): void {
+    const availableIndexes = this.data.elements
+      .map((_, index) => index)
+      .filter((index) => !this.usedIndexes.includes(index));
+
+    if (availableIndexes.length === 0) {
+      this._displayAlert('Wszystkie dostępne treści zostały już użyte.');
+      return;
     }
 
-    if (!this.usedIndexes.includes(indexToAdd)) {
-      const additionalElement = this.data.elements[indexToAdd];
-      const existingElement = this.displayedElements.find((element) => element === additionalElement);
+    const nextRandomIndex =
+      availableIndexes[Math.floor(Math.random() * availableIndexes.length)];
+    const additionalElement = this.data.elements[nextRandomIndex];
 
-      if (!existingElement) {
-        this.displayedElements.push(additionalElement);
-        this.usedIndexes.push(indexToAdd);
-        this.displayedElements.sort((a, b) => a.title.localeCompare(b.title));
-      } else {
-        this.displayAlert('Wybrana treść została już dodana.');
-      }
-    } else {
-      this.displayAlert('Wybrana treść została już użyta.');
-    }
+    this.displayedElements.push(additionalElement);
+    this.usedIndexes.push(nextRandomIndex);
+    this.displayedElements.sort((a, b) => a.title.localeCompare(b.title));
   }
 
   private _getRandomIndex(): number {
@@ -145,7 +218,9 @@ export class MainComponent implements OnInit, OnDestroy {
       return -1;
     }
 
-    return availableIndexes[Math.floor(Math.random() * availableIndexes.length)];
+    return availableIndexes[
+      Math.floor(Math.random() * availableIndexes.length)
+    ];
   }
 
   public onSelectOption(option: string): void {
@@ -153,10 +228,12 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   public ngOnDestroy(): void {
-    this.resetDataSubscription.unsubscribe();
+    if (this.resetDataSubscription) {
+      this.resetDataSubscription.unsubscribe();
+    }
   }
 
-  private displayAlert(message: string): void {
+  private _displayAlert(message: string): void {
     this.alertMessage = message;
     this.showAlert = true;
 
