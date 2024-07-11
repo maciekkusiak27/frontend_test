@@ -63,8 +63,8 @@
     <div class="main__block main__block--third">
       <div class="main__json-content" *ngIf="currentElement">
         <div *ngFor="let element of displayedElements">
-          <h2 class="main__json-title">{{ element.title }}</h2>
-          <p class="main__json-description">{{ element.description }}</p>
+          <h2 class="main__json-title">{{ element?.title }}</h2>
+          <p class="main__json-description">{{ element?.description }}</p>
           <button class="main__content-button" (click)="onEdit(element)">
             Edytuj
           </button>

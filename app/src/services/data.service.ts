@@ -6,7 +6,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DataService {
   private localStorageKey = 'myAppData';
@@ -31,12 +31,12 @@ export class DataService {
         return of(JSON.parse(storedData));
       } else {
         return this.fetchInitialData().pipe(
-          tap(data => {
-            this.setData(data); 
+          tap((data) => {
+            this.setData(data);
           }),
-          catchError(error => {
+          catchError((error) => {
             console.error('Błąd pobierania danych z pliku JSON:', error);
-            return of({ elements: [] }); 
+            return of({ elements: [] });
           })
         );
       }
@@ -57,5 +57,11 @@ export class DataService {
 
   public setResetData(value: boolean): void {
     this.resetDataSubject.next(value);
+  }
+
+  public resetData(): void {
+    const emptyData: DataJson = { elements: [] };
+    this.setData(emptyData);
+    this.resetDataSubject.next(true);
   }
 }

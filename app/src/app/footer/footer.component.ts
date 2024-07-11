@@ -16,6 +16,10 @@ export class FooterComponent {
 
   public onResetPage(): void {
     this._dataService.setResetData(true);
+
+    const checkbox = document.getElementById('showOptions') as HTMLInputElement;
+    if (checkbox) {
+      checkbox.checked = false;
+    }
   }
- 
 }

@@ -19,6 +19,6 @@ export class AppComponent {
   showPersonaldata: boolean = false;
 
   public addName(): void {
-    this.showPersonaldata = true;
+    this.showPersonaldata = !this.showPersonaldata;
   }
 }
