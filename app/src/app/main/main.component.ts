@@ -41,10 +41,7 @@ export class MainComponent implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       this.dataService.getData().subscribe((response) => {
         this.data = response;
-        if (this.data && this.data.elements.length > 0) {
-          this.currentElement = this.data.elements[this.currentElementIndex];
-          this.displayedElements = [this.currentElement];
-        }
+        this._resetToInitialState();
       });
     }
 
@@ -60,13 +57,8 @@ export class MainComponent implements OnInit, OnDestroy {
   private _resetToInitialState(): void {
     this.currentElementIndex = 0;
     this.usedIndexes = [];
-    if (this.data && this.data.elements.length > 0) {
-      this.currentElement = this.data.elements[this.currentElementIndex];
-      this.displayedElements = [this.currentElement];
-    } else {
-      this.currentElement = undefined;
-      this.displayedElements = [];
-    }
+    this.currentElement = undefined;
+    this.displayedElements = [];
   }
 
   public onEdit(element: Element): void {
@@ -107,6 +99,7 @@ export class MainComponent implements OnInit, OnDestroy {
         if (result) {
           this.data.elements.push(result);
           this._saveDataToLocalStorage();
+          this.displayedElements.push(result);
         }
       });
   }
@@ -156,6 +149,11 @@ export class MainComponent implements OnInit, OnDestroy {
 
   private _appendContent(): void {
     if (!this.data || this.data.elements.length === 0) {
+      return;
+    }
+
+    if (this.displayedElements.length === 0) {
+      this._replaceContent();
       return;
     }
 
